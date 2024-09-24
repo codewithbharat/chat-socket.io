@@ -9,7 +9,12 @@ const app = express();
 const server = createServer(app);
 
 // socket.io server
-const io = new Server(server);
+const io = new Server(server , {
+    cors: {
+        origin: "*", 
+        methods: ["GET", "POST"]
+    }
+});
 
 
 io.on('connection', (socket) => {
