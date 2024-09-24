@@ -5,8 +5,14 @@ import { dirname } from 'node:path';
 
 import { Server } from 'socket.io';
 
+// import dotenv
+import dotenv from 'dotenv';
+dotenv.config();
+
 const app = express();
 const server = createServer(app);
+
+const PORT =  process.env.PORT || 3000;
 
 // socket.io server
 const io = new Server(server);
@@ -30,7 +36,7 @@ app.get('/', (req ,res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(3000, '0.0.0.0', () => {
-    console.log('Server is running on http://localhost:3000');
+server.listen( PORT, () => {
+    console.log(`Server is running on PORT ${PORT}`);
     }
 );
