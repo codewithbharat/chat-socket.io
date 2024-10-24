@@ -49,7 +49,7 @@
   function addMessage(data, isSender) {
     const item = document.createElement('li');
     if (lastUser !== data.user) {
-      item.textContent = `${data.user}: ${data.message}`;
+      item.innerHTML = `<strong>${data.user}:</strong> ${data.message}`;
     } else {
       item.textContent = data.message;
     }
