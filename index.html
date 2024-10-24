@@ -17,6 +17,7 @@
     </style>
   </head>
   <body>
+    <h2 style="text-align: center; color: #333; margin-top: 1rem;">Chat Anonymously</h2>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
@@ -26,26 +27,38 @@
   const socket = io();
   const form = document.getElementById('form');
   const input = document.getElementById('input');
-
   const messages = document.getElementById('messages');
 
-
+  // Prompt for username
+  const username = prompt('Enter your name:');
+  let lastUser = '';
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (input.value) {
-      socket.emit('chat message', input.value);
+      socket.emit('chat message', { user: username, message: input.value });
+      addMessage({ user: username, message: input.value }, true);
       input.value = '';
     }
   });
 
-  socket.on('chat message', (msg) => {
+  socket.on('chat message', (data) => {
+    addMessage(data, false);
+  });
+
+  function addMessage(data, isSender) {
     const item = document.createElement('li');
-    console.log('frontend' + msg);
-    item.textContent = msg;
+    if (lastUser !== data.user) {
+      item.textContent = `${data.user}: ${data.message}`;
+    } else {
+      item.textContent = data.message;
+    }
+    item.style.backgroundColor = isSender ? '#d1e7dd' : '#f8d7da'; // Change background color
+    item.style.textAlign = isSender ? 'right' : 'left'; // Align text
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
-  });
+    lastUser = data.user;
+  }
 </script>
   </body>
 </html>
