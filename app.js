@@ -17,14 +17,43 @@ const PORT =  process.env.PORT || 3000;
 // socket.io server
 const io = new Server(server);
 
+let roomCounter = 0;
+const rooms = {};
 
 io.on('connection', (socket) => {
     console.log('A user connected');
+
+    // Find a room with less than 2 users
+    let room = Object.keys(rooms).find(room => rooms[room].length < 2);
+
+    // If no such room exists, create a new one
+    if (!room) {
+        room = `room-${roomCounter++}`;
+        rooms[room] = [];
+    }
+
+    // Add the user to the room
+    rooms[room].push(socket.id);
+    socket.join(room);
+    console.log(`User joined ${room}`);
+
+    // Notify the user if they are waiting for another user to join
+    if (rooms[room].length === 1) {
+        socket.emit('waiting', 'Waiting for another user to join...');
+    } else {
+        io.to(room).emit('start chat', 'You can start chatting now!');
+    }
+
     socket.on('chat message', (msg) => {
-        socket.broadcast.emit('chat message', msg);
+        socket.to(room).emit('chat message', msg);
     });
+
     socket.on('disconnect', () => {
         console.log('A user disconnected');
+        rooms[room] = rooms[room].filter(id => id !== socket.id);
+        if (rooms[room].length === 0) {
+            delete rooms[room];
+        }
     });
 });
 
